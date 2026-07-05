@@ -12,6 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initBackToTop();
     initContactForm();
     initDynamicYear();
+    initScrollProgress();
+    initSpotlight();
+    initTimelineReveal();
+    initProjectFilters();
+    initLightbox();
+    initTypingGlitch();
 });
 
 function debounce(func, wait = 10) {
@@ -60,8 +66,8 @@ function initParticleNetwork() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-        const particleColor = isDark ? '0, 245, 255' : '0, 150, 200';
-        const lineColor = isDark ? '0, 245, 255' : '0, 150, 200';
+        const particleColor = isDark ? '255, 255, 255' : '100, 100, 100';
+        const lineColor = isDark ? '255, 255, 255' : '100, 100, 100';
 
         particles.forEach((p, i) => {
             p.x += p.vx;
@@ -311,7 +317,7 @@ function initThemeToggle() {
 
     function updateMetaTheme(theme) {
         if (metaTheme) {
-            metaTheme.setAttribute('content', theme === 'dark' ? '#0a0a0f' : '#f4f4f9');
+            metaTheme.setAttribute('content', theme === 'dark' ? '#0a0a0a' : '#f5f5f5');
         }
     }
 }
@@ -473,56 +479,150 @@ function initBackToTop() {
 }
 
 /* ========================================
-   Contact Form
+   Contact Form Enhanced
    ======================================== */
 function initContactForm() {
     const form = document.getElementById('contactForm');
     if (!form) return;
 
+    const inputs = form.querySelectorAll('.form-input');
+    const textarea = document.getElementById('message');
+    const charCount = document.getElementById('charCount');
+    const submitBtn = document.getElementById('submitBtn');
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    /* Floating label autofill fix */
+    inputs.forEach((input) => {
+        if (input.value) input.classList.add('focused');
+    });
+
+    /* Real-time validation */
+    inputs.forEach((input) => {
+        input.addEventListener('input', () => {
+            validateField(input);
+        });
+
+        input.addEventListener('blur', () => {
+            if (!input.value) {
+                input.classList.remove('input-valid', 'input-invalid');
+            } else {
+                validateField(input);
+            }
+        });
+    });
+
+    function validateField(input) {
+        input.classList.remove('input-valid', 'input-invalid');
+
+        if (!input.value) return;
+
+        if (input.type === 'email') {
+            if (emailRegex.test(input.value)) {
+                input.classList.add('input-valid');
+            } else {
+                input.classList.add('input-invalid');
+            }
+        } else if (input.id === 'name') {
+            if (input.value.length >= 2) {
+                input.classList.add('input-valid');
+            } else {
+                input.classList.add('input-invalid');
+            }
+        } else if (input.id === 'message') {
+            if (input.value.length >= 10) {
+                input.classList.add('input-valid');
+            } else {
+                input.classList.add('input-invalid');
+            }
+        }
+    }
+
+    /* Character counter */
+    if (textarea && charCount) {
+        textarea.addEventListener('input', () => {
+            const len = textarea.value.length;
+            const max = textarea.maxLength || 500;
+            charCount.textContent = len;
+
+            const counter = charCount.parentElement;
+            counter.classList.remove('near-limit', 'at-limit');
+            if (len >= max - 20) counter.classList.add('near-limit');
+            if (len >= max) counter.classList.add('at-limit');
+        });
+    }
+
+    /* Submit handler */
     form.addEventListener('submit', (e) => {
         e.preventDefault();
 
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
 
+        /* Final validation */
+        let hasError = false;
+        inputs.forEach((input) => {
+            validateField(input);
+            if (input.classList.contains('input-invalid') || (!input.value && input.required)) {
+                hasError = true;
+            }
+        });
+
         if (!data.name || !data.email || !data.message) {
             showNotification('Mohon lengkapi semua field!', 'error');
             return;
         }
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(data.email)) {
-            showNotification('Mohon masukkan email yang valid!', 'error');
+        if (hasError || !emailRegex.test(data.email)) {
+            showNotification('Mohon periksa kembali input kamu!', 'error');
             return;
         }
 
-        const btn = form.querySelector('button[type="submit"]');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<span>Mengirim...</span>';
-        btn.disabled = true;
+        /* Show loading state */
+        if (submitBtn) {
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+        }
 
-        // Formspree integration (replace YOUR_FORM_ID)
-        fetch('https://formspree.io/f/xkgjpqdp', {
+        const webhookURL = 'https://discord.com/api/webhooks/1523364423891157003/fo6opErz68DpR0d_0OuvVTyV6Ks-CYOUWFw_fjQNUmo-UuhcamyIinUbPdeCIF1Cv0NF';
+
+        const embed = {
+            embeds: [{
+                title: '📬 Pesan Baru dari Portfolio',
+                color: 0x00f5ff,
+                fields: [
+                    { name: 'Nama', value: data.name, inline: true },
+                    { name: 'Email', value: data.email, inline: true },
+                    { name: 'Pesan', value: data.message },
+                ],
+                timestamp: new Date().toISOString(),
+                footer: { text: 'Portfolio - Abdullah Nur Hadi' },
+            }],
+        };
+
+        fetch(webhookURL, {
             method: 'POST',
-            body: JSON.stringify(data),
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(embed),
+            headers: { 'Content-Type': 'application/json' },
         })
             .then((res) => {
                 if (res.ok) {
                     showNotification('Pesan berhasil dikirim! Terima kasih.', 'success');
                     form.reset();
+                    inputs.forEach((i) => i.classList.remove('input-valid', 'input-invalid'));
+                    if (charCount) charCount.textContent = '0';
                 } else {
                     showNotification('Gagal mengirim pesan. Coba lagi.', 'error');
                 }
             })
             .catch(() => {
-                // Fallback: show success anyway for demo
-                showNotification('Pesan berhasil dikirim! Terima kasih.', 'success');
-                form.reset();
+                showNotification('Gagal mengirim pesan. Coba lagi.', 'error');
             })
             .finally(() => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+                if (submitBtn) {
+                    submitBtn.classList.remove('loading');
+                    submitBtn.disabled = false;
+                }
             });
     });
 }
@@ -549,9 +649,9 @@ function showNotification(message, type) {
         right: '20px',
         padding: '16px 24px',
         background: type === 'success'
-            ? 'linear-gradient(135deg, rgba(0, 245, 255, 0.15), rgba(0, 245, 255, 0.05))'
-            : 'linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(236, 72, 153, 0.05))',
-        border: `1px solid ${type === 'success' ? 'rgba(0, 245, 255, 0.3)' : 'rgba(236, 72, 153, 0.3)'}`,
+            ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04))'
+            : 'linear-gradient(135deg, rgba(160, 160, 160, 0.12), rgba(160, 160, 160, 0.04))',
+        border: `1px solid ${type === 'success' ? 'rgba(255, 255, 255, 0.25)' : 'rgba(160, 160, 160, 0.3)'}`,
         borderRadius: '12px',
         color: '#fff',
         backdropFilter: 'blur(20px)',
@@ -595,4 +695,229 @@ function showNotification(message, type) {
 function initDynamicYear() {
     const el = document.getElementById('year');
     if (el) el.textContent = new Date().getFullYear();
+}
+
+/* ========================================
+   Scroll Progress Bar
+   ======================================== */
+function initScrollProgress() {
+    const bar = document.getElementById('scrollProgressBar');
+    if (!bar) return;
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            requestAnimationFrame(() => {
+                const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+                bar.style.width = progress + '%';
+                ticking = false;
+            });
+            ticking = true;
+        }
+    });
+}
+
+/* ========================================
+   Spotlight Cursor
+   ======================================== */
+function initSpotlight() {
+    const spotlight = document.getElementById('spotlight');
+    if (!spotlight) return;
+
+    let hasMoved = false;
+
+    document.addEventListener('mousemove', (e) => {
+        if (!hasMoved) {
+            hasMoved = true;
+            spotlight.classList.add('visible');
+        }
+        spotlight.style.left = e.clientX + 'px';
+        spotlight.style.top = e.clientY + 'px';
+    });
+
+    document.addEventListener('mouseleave', () => {
+        spotlight.classList.remove('visible');
+    });
+
+    document.addEventListener('mouseenter', (e) => {
+        if (hasMoved) {
+            spotlight.classList.add('visible');
+        }
+    });
+}
+
+/* ========================================
+   Enhanced Timeline Reveal (Per Item)
+   ======================================== */
+function initTimelineReveal() {
+    const items = document.querySelectorAll('.timeline-item');
+    if (!items.length) return;
+
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        },
+        { threshold: 0.15, rootMargin: '0px 0px -30px 0px' }
+    );
+
+    items.forEach((item) => observer.observe(item));
+}
+
+/* ========================================
+   Typing Glitch Effect
+   ======================================== */
+function initTypingGlitch() {
+    const el = document.getElementById('typedText');
+    if (!el) return;
+
+    const observer = new MutationObserver(() => {
+        el.classList.add('glitch');
+        setTimeout(() => el.classList.remove('glitch'), 600);
+    });
+
+    observer.observe(el, { childList: true });
+}
+
+/* ========================================
+   Project Filters
+   ======================================== */
+function initProjectFilters() {
+    const filters = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.project-card');
+    if (!filters.length || !cards.length) return;
+
+    filters.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const filter = btn.dataset.filter;
+
+            filters.forEach((b) => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            cards.forEach((card) => {
+                if (filter === 'all' || card.dataset.category === filter) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            // Re-layout masonry/grid effect
+            const grid = document.querySelector('.projects-grid');
+            if (grid) {
+                grid.style.minHeight = grid.offsetHeight + 'px';
+                requestAnimationFrame(() => {
+                    grid.style.minHeight = '';
+                });
+            }
+        });
+    });
+}
+
+/* ========================================
+   Lightbox
+   ======================================== */
+function initLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    const overlay = document.getElementById('lightboxOverlay');
+    const image = document.getElementById('lightboxImage');
+    const caption = document.getElementById('lightboxCaption');
+    const closeBtn = document.getElementById('lightboxClose');
+    const prevBtn = document.getElementById('lightboxPrev');
+    const nextBtn = document.getElementById('lightboxNext');
+
+    if (!lightbox || !overlay || !image) return;
+
+    const projectImages = document.querySelectorAll('.project-image img');
+    let currentIndex = 0;
+    const images = [];
+
+    projectImages.forEach((img, index) => {
+        const projectCard = img.closest('.project-card');
+        if (projectCard && !projectCard.classList.contains('hidden')) {
+            const title = projectCard.querySelector('h3')?.textContent || '';
+            images.push({ src: img.src, title: title });
+        }
+    });
+
+    function open(index) {
+        if (index < 0 || index >= images.length) return;
+        currentIndex = index;
+        image.src = images[index].src;
+        image.alt = images[index].title;
+        caption.textContent = images[index].title;
+        lightbox.classList.add('active');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function close() {
+        lightbox.classList.remove('active');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    function prev() {
+        if (images.length <= 1) return;
+        currentIndex = (currentIndex - 1 + images.length) % images.length;
+        image.src = images[currentIndex].src;
+        image.alt = images[currentIndex].title;
+        caption.textContent = images[currentIndex].title;
+    }
+
+    function next() {
+        if (images.length <= 1) return;
+        currentIndex = (currentIndex + 1) % images.length;
+        image.src = images[currentIndex].src;
+        image.alt = images[currentIndex].title;
+        caption.textContent = images[currentIndex].title;
+    }
+
+    function refreshImages() {
+        images.length = 0;
+        document.querySelectorAll('.project-image img').forEach((img) => {
+            const card = img.closest('.project-card');
+            if (card && !card.classList.contains('hidden')) {
+                const title = card.querySelector('h3')?.textContent || '';
+                images.push({ src: img.src, title: title });
+            }
+        });
+    }
+
+    projectImages.forEach((img, index) => {
+        img.style.cursor = 'pointer';
+        img.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const card = img.closest('.project-card');
+            if (card && card.classList.contains('hidden')) return;
+            refreshImages();
+            const newIndex = images.findIndex((i) => i.src === img.src);
+            if (newIndex !== -1) open(newIndex);
+        });
+    });
+
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    if (overlay) overlay.addEventListener('click', close);
+    if (prevBtn) prevBtn.addEventListener('click', prev);
+    if (nextBtn) nextBtn.addEventListener('click', next);
+
+    document.addEventListener('keydown', (e) => {
+        if (!lightbox.classList.contains('active')) return;
+        if (e.key === 'Escape') close();
+        if (e.key === 'ArrowLeft') prev();
+        if (e.key === 'ArrowRight') next();
+    });
+
+    // Refresh images when filter changes
+    document.querySelectorAll('.filter-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            setTimeout(refreshImages, 500);
+        });
+    });
 }
