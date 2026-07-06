@@ -584,7 +584,7 @@ function initContactForm() {
             submitBtn.disabled = true;
         }
 
-        const webhookURL = 'https://discord.com/api/webhooks/1523364423891157003/fo6opErz68DpR0d_0OuvVTyV6Ks-CYOUWFw_fjQNUmo-UuhcamyIinUbPdeCIF1Cv0NF';
+        const webhookURL = 'https://discord.com/api/webhooks/1523541834817863825/HidmhWQjeoSJhdfnvcIY_LaiRhz5lJtOagZgcLMwXb_4S9C4IBH1_QSZSmxPkw7EcK64';
 
         const embed = {
             embeds: [{
