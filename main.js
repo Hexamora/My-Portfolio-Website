@@ -600,7 +600,7 @@ function initContactForm() {
             }],
         };
 
-        fetch(webhookURL, {
+        fetch(URL, {
             method: 'POST',
             body: JSON.stringify(embed),
             headers: { 'Content-Type': 'application/json' },
