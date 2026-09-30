@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Galeri Jepretan Abdullah Nur Hadi — Kumpulan hasil foto random: drone, IoT, dan eksplorasi visual">
+    <meta name="author" content="Abdullah Nur Hadi">
+    <meta name="theme-color" content="#0a0a0a">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Galeri Jepretan | Abdullah Nur Hadi">
+    <meta property="og:description" content="Kumpulan hasil jepretan/foto random — embed via link, tanpa simpan lokal">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://files.catbox.moe/9naso2.jpg">
+
+    <title>Galeri Jepretan | Abdullah Nur Hadi</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/jpg" href="assets/3bd470decd6ccfd0803a61d50a036d59.jpg">
+</head>
+<body>
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress-bar" id="scrollProgressBar"></div>
+
+    <!-- Spotlight Cursor -->
+    <div class="spotlight" id="spotlight"></div>
+
+    <!-- Navigation (cross-page) -->
+    <nav class="glass-nav" id="navbar">
+        <div class="nav-container">
+            <a href="index.html#hero" class="logo">
+                <span class="logo-text">H</span>
+                <span class="logo-glow"></span>
+            </a>
+
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html#hero" class="nav-link">Home</a></li>
+                <li><a href="index.html#about" class="nav-link">Tentang</a></li>
+                <li><a href="index.html#timeline" class="nav-link">Perjalanan</a></li>
+                <li><a href="index.html#projects" class="nav-link">Proyek</a></li>
+                <li><a href="index.html#skills" class="nav-link">Skills</a></li>
+                <li><a href="index.html#contact" class="nav-link">Kontak</a></li>
+                <li><a href="gallery.html" class="nav-link active">Galeri</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                    </svg>
+                    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                    </svg>
+                </button>
+                <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="gallery-section section visible" id="gallery">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-tag">Jepretan Random</span>
+                    <h2 class="section-title">Hasil <span class="highlight">Jepretan</span></h2>
+                    <p class="section-subtitle">Kumpulan foto random hasil eksplorasi — klik foto untuk perbesar. Tambah foto baru cukup paste link di <code>GALLERY_PHOTOS</code>.</p>
+                </div>
+
+                <div class="gallery-meta glass-card">
+                    <div class="gallery-meta-item">
+                        <span class="gallery-count" id="galleryCount">0</span>
+                        <span class="gallery-count-label">Foto</span>
+                    </div>
+                    <p class="gallery-meta-text">Semua aset di-embed via link (Catbox/dll), tanpa simpan di folder lokal.</p>
+                    <a href="index.html#contact" class="btn btn-secondary btn-sm">Minta File Asli via Kontak</a>
+                </div>
+
+                <div class="masonry-grid" id="galleryGrid" aria-live="polite"></div>
+
+                <div class="gallery-empty glass-card" id="galleryEmpty" hidden>
+                    <img src="https://files.catbox.moe/dpejcc.png" alt="Galeri masih kosong" loading="lazy">
+                    <h3>Galeri masih kosong</h3>
+                    <p>Container siap diisi. Tambahkan link foto di array <code>GALLERY_PHOTOS</code> di bawah file ini.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+        <div class="back-to-top-progress" id="scrollProgress"></div>
+    </button>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p class="copyright">© <span id="year"></span> Abdullah Nur Hadi. All rights reserved.</p>
+                <p class="footer-tagline">📷 Mendokumentasikan eksplorasi, satu jepretan dalam satu waktu.</p>
+                <p class="footer-back"><a href="index.html#hero">← Kembali ke Home</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Lightbox Modal (sama seperti index.html agar main.js reuse) -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightboxClose">&times;</button>
+        <button class="lightbox-nav lightbox-prev" id="lightboxPrev">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <div class="lightbox-content">
+            <img class="lightbox-image" id="lightboxImage" src="" alt="">
+            <div class="lightbox-caption" id="lightboxCaption"></div>
+        </div>
+        <button class="lightbox-nav lightbox-next" id="lightboxNext">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+    </div>
+    <div class="lightbox-overlay" id="lightboxOverlay"></div>
+
+    <script src="main.js"></script>
+    <script>
+    /* =====================================================
+       EDIT FOTO DI SINI SAJA — paste link embed kamu
+       Tidak perlu taruh file di folder lokal / assets/
+       ===================================================== */
+    const GALLERY_PHOTOS = [
+        {
+            src: "https://files.catbox.moe/9naso2.jpg",
+            title: "Drone",
+            location: "Aerial Shot"
+        },
+        {
+            src: "https://files.catbox.moe/3banpq.jpg",
+            title: "IoT Jammer Mechanism",
+            location: "Workshop / Lab"
+        }
+        // Contoh tambah baru:
+        // { src: "https://files.catbox.moe/xxxxxx.jpg", title: "Judul Foto", location: "Lokasi" },
+    ];
+    const GALLERY_EMPTY_IMG = "https://files.catbox.moe/dpejcc.png";
+
+    (function renderGallery() {
+        const grid = document.getElementById('galleryGrid');
+        const empty = document.getElementById('galleryEmpty');
+        const count = document.getElementById('galleryCount');
+        if (!grid) return;
+
+        grid.innerHTML = '';
+
+        if (!Array.isArray(GALLERY_PHOTOS) || GALLERY_PHOTOS.length === 0) {
+            if (empty) empty.hidden = false;
+            if (count) count.textContent = '0';
+            return;
+        }
+
+        if (empty) empty.hidden = true;
+        if (count) count.textContent = String(GALLERY_PHOTOS.length);
+
+        GALLERY_PHOTOS.forEach((photo, i) => {
+            const fig = document.createElement('figure');
+            fig.className = 'gallery-item glass-card stagger-item visible';
+            fig.style.transitionDelay = (Math.min(i * 60, 300)) + 'ms';
+
+            const img = document.createElement('img');
+            img.src = photo.src;
+            img.alt = photo.title || ('Foto ' + (i + 1));
+            img.loading = 'lazy';
+            img.decoding = 'async';
+            img.referrerPolicy = 'no-referrer';
+            img.dataset.index = String(i);
+            // Fallback kalau link mati -> pakai ilustrasi empty
+            img.onerror = function () {
+                if (this.src !== GALLERY_EMPTY_IMG) this.src = GALLERY_EMPTY_IMG;
+                this.alt = 'Gambar tidak dapat dimuat: ' + (photo.title || '');
+            };
+
+            const cap = document.createElement('figcaption');
+            cap.className = 'gallery-caption';
+
+            const title = document.createElement('h3');
+            title.textContent = photo.title || ('Foto ' + (i + 1));
+
+            const loc = document.createElement('span');
+            loc.className = 'gallery-location';
+            loc.textContent = '📍 ' + (photo.location || 'Random Shot');
+
+            const zoom = document.createElement('span');
+            zoom.className = 'gallery-zoom';
+            zoom.setAttribute('aria-hidden', 'true');
+            zoom.textContent = '⤢';
+
+            cap.appendChild(title);
+            cap.appendChild(loc);
+            fig.appendChild(img);
+            fig.appendChild(cap);
+            fig.appendChild(zoom);
+            grid.appendChild(fig);
+        });
+    })();
+    </script>
+</body>
+</html>

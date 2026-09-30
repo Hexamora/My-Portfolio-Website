@@ -150,23 +150,38 @@ function initNavigation() {
         navbar.classList.toggle('scrolled', window.pageYOffset > 50);
     });
 
+    // Smooth scroll hanya untuk anchor murni (#xxx) di halaman yang sama.
+    // Link cross-page (gallery.html, index.html#xxx) dibiarkan navigasi normal.
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
+            const href = this.getAttribute('href');
+            // Abaikan href="#" kosong agar tidak error querySelector
+            if (!href || href.length < 2) return;
+            const target = document.querySelector(href);
             if (target) {
+                e.preventDefault();
                 const offset = 80;
                 const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
                 window.scrollTo({ top: targetPosition, behavior: 'smooth' });
-
-                const navLinks = document.getElementById('navLinks');
-                const mobileToggle = document.getElementById('mobileToggle');
-                navLinks.classList.remove('active');
-                mobileToggle.classList.remove('active');
-                document.querySelector('.nav-overlay')?.classList.remove('active');
+                closeMobileMenu();
             }
         });
     });
+
+    // Tutup mobile menu untuk semua link nav (termasuk link cross-page)
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', closeMobileMenu);
+    });
+
+    function closeMobileMenu() {
+        const navLinks = document.getElementById('navLinks');
+        const mobileToggle = document.getElementById('mobileToggle');
+        if (!navLinks || !mobileToggle) return;
+        navLinks.classList.remove('active');
+        mobileToggle.classList.remove('active');
+        document.querySelector('.nav-overlay')?.classList.remove('active');
+        document.body.style.overflow = '';
+    }
 }
 
 /* ========================================
@@ -175,8 +190,19 @@ function initNavigation() {
 function initScrollEffects() {
     const sections = document.querySelectorAll('section[id]');
     const navLinks = document.querySelectorAll('.nav-links a');
+    const isGalleryPage = window.location.pathname.includes('gallery');
 
     const onScroll = () => {
+        // Di halaman galeri, kunci nav aktif ke Galeri agar tidak hilang saat scroll
+        if (isGalleryPage) {
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href') || '';
+                const isGalleryLink = href.includes('gallery') || href === '#gallery';
+                link.classList.toggle('active', isGalleryLink);
+            });
+            return;
+        }
+
         let current = '';
         sections.forEach(section => {
             if (scrollY >= section.offsetTop - 300) {
@@ -834,17 +860,26 @@ function initLightbox() {
 
     if (!lightbox || !overlay || !image) return;
 
-    const projectImages = document.querySelectorAll('.project-image img');
     let currentIndex = 0;
-    const images = [];
+    let images = [];
 
-    projectImages.forEach((img, index) => {
-        const projectCard = img.closest('.project-card');
-        if (projectCard && !projectCard.classList.contains('hidden')) {
-            const title = projectCard.querySelector('h3')?.textContent || '';
-            images.push({ src: img.src, title: title });
-        }
-    });
+    // Kumpulkan project + gallery (gallery di-render dinamis, jadi query saat open)
+    function collectImages() {
+        const list = [];
+        document.querySelectorAll('.project-image img').forEach((img) => {
+            const card = img.closest('.project-card');
+            if (card && card.classList.contains('hidden')) return;
+            const title = card.querySelector('h3')?.textContent || img.alt || '';
+            list.push({ src: img.src, title: title });
+        });
+        document.querySelectorAll('.gallery-item img').forEach((img) => {
+            const item = img.closest('.gallery-item');
+            const title = item?.querySelector('h3')?.textContent || img.alt || '';
+            const loc = item?.querySelector('.gallery-location')?.textContent || '';
+            list.push({ src: img.currentSrc || img.src, title: loc ? `${title} — ${loc}` : title });
+        });
+        return list;
+    }
 
     function open(index) {
         if (index < 0 || index >= images.length) return;
@@ -880,27 +915,34 @@ function initLightbox() {
     }
 
     function refreshImages() {
-        images.length = 0;
-        document.querySelectorAll('.project-image img').forEach((img) => {
-            const card = img.closest('.project-card');
-            if (card && !card.classList.contains('hidden')) {
-                const title = card.querySelector('h3')?.textContent || '';
-                images.push({ src: img.src, title: title });
-            }
-        });
+        images = collectImages();
     }
 
-    projectImages.forEach((img, index) => {
-        img.style.cursor = 'pointer';
-        img.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const card = img.closest('.project-card');
-            if (card && card.classList.contains('hidden')) return;
-            refreshImages();
-            const newIndex = images.findIndex((i) => i.src === img.src);
-            if (newIndex !== -1) open(newIndex);
-        });
+    // Delegasi klik — bekerja untuk project (statis) + gallery (dinamis)
+    document.addEventListener('click', (e) => {
+        const img = e.target.closest('.project-image img, .gallery-item img');
+        if (!img || !lightbox) return;
+        const card = img.closest('.project-card');
+        if (card && card.classList.contains('hidden')) return;
+        e.stopPropagation();
+        refreshImages();
+        const src = img.currentSrc || img.src;
+        const newIndex = images.findIndex((i) => i.src === src);
+        if (newIndex !== -1) open(newIndex);
     });
+
+    // Cursor pointer untuk semua gambar yang bisa di-lightbox
+    document.querySelectorAll('.project-image img, .gallery-item img').forEach((img) => {
+        img.style.cursor = 'pointer';
+    });
+    // Untuk gallery yang di-render setelah init, terapkan via MutationObserver sekali
+    const galleryGrid = document.getElementById('galleryGrid');
+    if (galleryGrid) {
+        const mo = new MutationObserver(() => {
+            galleryGrid.querySelectorAll('img').forEach((img) => { img.style.cursor = 'pointer'; });
+        });
+        mo.observe(galleryGrid, { childList: true });
+    }
 
     if (closeBtn) closeBtn.addEventListener('click', close);
     if (overlay) overlay.addEventListener('click', close);
