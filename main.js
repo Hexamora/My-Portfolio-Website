@@ -518,6 +518,22 @@ function initContactForm() {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+    const errorMessages = {
+        name: 'Nama minimal 2 karakter',
+        email: 'Format email tidak valid',
+        message: 'Pesan minimal 10 karakter',
+    };
+
+    function showError(input, msg) {
+        const err = input.closest('.form-group')?.querySelector('.form-error');
+        if (err) { err.textContent = msg; err.classList.add('show'); }
+    }
+
+    function clearError(input) {
+        const err = input.closest('.form-group')?.querySelector('.form-error');
+        if (err) { err.textContent = ''; err.classList.remove('show'); }
+    }
+
     /* Floating label autofill fix */
     inputs.forEach((input) => {
         if (input.value) input.classList.add('focused');
@@ -530,37 +546,42 @@ function initContactForm() {
         });
 
         input.addEventListener('blur', () => {
-            if (!input.value) {
+            if (!input.value.trim()) {
                 input.classList.remove('input-valid', 'input-invalid');
+                clearError(input);
             } else {
                 validateField(input);
             }
         });
     });
 
-    function validateField(input) {
+    function validateField(input, force = false) {
+        const v = input.value.trim();
         input.classList.remove('input-valid', 'input-invalid');
 
-        if (!input.value) return;
+        if (!v) {
+            if (force) {
+                showError(input, 'Field ini wajib diisi');
+            } else {
+                clearError(input);
+            }
+            return;
+        }
 
+        let ok = true;
         if (input.type === 'email') {
-            if (emailRegex.test(input.value)) {
-                input.classList.add('input-valid');
-            } else {
-                input.classList.add('input-invalid');
-            }
+            ok = emailRegex.test(v);
         } else if (input.id === 'name') {
-            if (input.value.length >= 2) {
-                input.classList.add('input-valid');
-            } else {
-                input.classList.add('input-invalid');
-            }
+            ok = v.length >= 2;
         } else if (input.id === 'message') {
-            if (input.value.length >= 10) {
-                input.classList.add('input-valid');
-            } else {
-                input.classList.add('input-invalid');
-            }
+            ok = v.length >= 10;
+        }
+
+        input.classList.add(ok ? 'input-valid' : 'input-invalid');
+        if (ok) {
+            clearError(input);
+        } else {
+            showError(input, errorMessages[input.id] || 'Input tidak valid');
         }
     }
 
@@ -584,23 +605,28 @@ function initContactForm() {
 
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
+        for (const key of Object.keys(data)) data[key] = (data[key] || '').trim();
 
         /* Final validation */
         let hasError = false;
+        let firstInvalid = null;
         inputs.forEach((input) => {
-            validateField(input);
-            if (input.classList.contains('input-invalid') || (!input.value && input.required)) {
+            validateField(input, true);
+            if (input.classList.contains('input-invalid') || !input.value.trim()) {
                 hasError = true;
+                if (!firstInvalid) firstInvalid = input;
             }
         });
 
         if (!data.name || !data.email || !data.message) {
             showNotification('Mohon lengkapi semua field!', 'error');
+            if (firstInvalid) firstInvalid.focus();
             return;
         }
 
-        if (hasError || !emailRegex.test(data.email)) {
+        if (hasError) {
             showNotification('Mohon periksa kembali input kamu!', 'error');
+            if (firstInvalid) firstInvalid.focus();
             return;
         }
 
@@ -635,7 +661,10 @@ function initContactForm() {
                 if (res.ok) {
                     showNotification('Pesan berhasil dikirim! Terima kasih.', 'success');
                     form.reset();
-                    inputs.forEach((i) => i.classList.remove('input-valid', 'input-invalid'));
+                    inputs.forEach((i) => {
+                        i.classList.remove('input-valid', 'input-invalid');
+                        clearError(i);
+                    });
                     if (charCount) charCount.textContent = '0';
                 } else {
                     showNotification('Gagal mengirim pesan. Coba lagi.', 'error');

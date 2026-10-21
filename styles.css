@@ -2297,6 +2297,19 @@ a {
 }
 
 /* Validation states */
+.contact-form .form-error {
+    display: none;
+    margin-top: 6px;
+    padding-left: 4px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--accent-pink);
+}
+
+.contact-form .form-error.show {
+    display: block;
+}
+
 .contact-form .form-input.input-valid {
     border-color: rgba(255, 255, 255, 0.35);
 }
