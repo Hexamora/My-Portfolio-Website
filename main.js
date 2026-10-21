@@ -626,7 +626,7 @@ function initContactForm() {
             }],
         };
 
-        fetch(URL, {
+        fetch(webhookURL, {
             method: 'POST',
             body: JSON.stringify(embed),
             headers: { 'Content-Type': 'application/json' },
@@ -669,10 +669,17 @@ function showNotification(message, type) {
         <span>${message}</span>
     `;
 
+    const isSmallScreen = window.innerWidth <= 640;
+    const animIn = isSmallScreen ? 'slideInMobile' : 'slideIn';
+    const animOut = isSmallScreen ? 'slideOutMobile' : 'slideOut';
+
     Object.assign(notification.style, {
         position: 'fixed',
-        top: '100px',
-        right: '20px',
+        top: isSmallScreen ? 'auto' : '100px',
+        bottom: isSmallScreen ? '24px' : 'auto',
+        left: isSmallScreen ? '24px' : 'auto',
+        right: isSmallScreen ? '24px' : '20px',
+        maxWidth: isSmallScreen ? 'calc(100vw - 48px)' : '400px',
         padding: '16px 24px',
         background: type === 'success'
             ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04))'
@@ -689,8 +696,7 @@ function showNotification(message, type) {
         fontWeight: '500',
         fontSize: '0.95rem',
         boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
-        animation: 'slideIn 0.3s ease',
-        maxWidth: '400px',
+        animation: `${animIn} 0.3s ease`,
     });
 
     document.body.appendChild(notification);
@@ -701,6 +707,8 @@ function showNotification(message, type) {
         s.textContent = `
             @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
             @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+            @keyframes slideInMobile { from { transform: translateY(120%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+            @keyframes slideOutMobile { from { transform: translateY(0); opacity: 1; } to { transform: translateY(120%); opacity: 0; } }
             .notification-icon { font-size: 1.2rem; }
         `;
         document.head.appendChild(s);
@@ -709,7 +717,7 @@ function showNotification(message, type) {
 
     setTimeout(() => {
         if (notification.parentNode) {
-            notification.style.animation = 'slideOut 0.3s ease forwards';
+            notification.style.animation = `${animOut} 0.3s ease forwards`;
             setTimeout(() => notification.remove(), 300);
         }
     }, 5000);

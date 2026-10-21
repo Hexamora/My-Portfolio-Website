@@ -2228,7 +2228,7 @@ a {
 }
 
 .contact-form .form-textarea {
-    padding: 24px 16px 10px 48px;
+    padding: 26px 16px 30px 16px;
     min-height: 130px;
     resize: vertical;
     line-height: 1.6;
@@ -2236,7 +2236,7 @@ a {
 
 .contact-form .form-label {
     position: absolute;
-    left: 48px;
+    left: 16px;
     top: 50%;
     transform: translateY(-50%);
     font-size: 0.95rem;
@@ -2248,7 +2248,7 @@ a {
 }
 
 .contact-form .form-textarea ~ .form-label {
-    top: 24px;
+    top: 15px;
     transform: translateY(0);
 }
 
@@ -2256,7 +2256,7 @@ a {
 .contact-form .form-input:not(:placeholder-shown) ~ .form-label {
     top: 8px;
     transform: translateY(0) scale(0.8);
-    left: 44px;
+    left: 16px;
     color: var(--accent-cyan);
 }
 
@@ -2264,7 +2264,7 @@ a {
 .contact-form .form-textarea:not(:placeholder-shown) ~ .form-label {
     top: 8px;
     transform: translateY(0) scale(0.8);
-    left: 44px;
+    left: 16px;
 }
 
 /* Animated border gradient */
@@ -2302,7 +2302,7 @@ a {
 }
 
 .contact-form .form-input.input-invalid {
-    border-color: rgba(160, 160, 160, 0.4);
+    border-color: var(--accent-pink);
 }
 
 .contact-form .input-valid-icon {
@@ -2391,6 +2391,18 @@ a {
 /* Focus-within card glow */
 .contact-form:focus-within {
     box-shadow: var(--shadow-card), 0 0 40px rgba(255,255,255,0.06);
+}
+
+@media (max-width: 768px) {
+    /* 16px mencegah iOS Safari auto-zoom saat tap input */
+    .contact-form .form-input {
+        font-size: 16px;
+    }
+
+    /* resize handle kecil & mudah salah drag di layar sentuh */
+    .contact-form .form-textarea {
+        resize: none;
+    }
 }
 
 /* ========================================
