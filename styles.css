@@ -2408,59 +2408,6 @@ a {
     line-height: 1.7;
 }
 
-.section-subtitle code {
-    padding: 2px 8px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    font-size: 0.85em;
-    color: var(--text-primary);
-}
-
-.gallery-meta {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin-bottom: 36px;
-    padding: 20px 24px;
-}
-
-.gallery-meta-item {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-}
-
-.gallery-count {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 2rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    line-height: 1;
-}
-
-.gallery-count-label {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.gallery-meta-text {
-    flex: 1;
-    min-width: 200px;
-    font-size: 0.9rem;
-}
-
-.btn-sm {
-    padding: 10px 20px;
-    font-size: 0.88rem;
-}
-
 /* Masonry via CSS columns — natural varying heights */
 .masonry-grid {
     columns: 3 280px;
@@ -2561,15 +2508,6 @@ a {
     font-size: 0.92rem;
 }
 
-.gallery-empty code {
-    padding: 2px 8px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    font-size: 0.85em;
-    color: var(--text-primary);
-}
-
 .footer-back {
     margin-top: 12px;
     font-size: 0.9rem;
@@ -2593,17 +2531,6 @@ a {
 @media (max-width: 768px) {
     .gallery-section {
         padding-top: calc(var(--nav-height) + 30px);
-    }
-
-    .gallery-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
-
-    .gallery-meta .btn {
-        width: 100%;
-        justify-content: center;
     }
 
     /* stagger delay untuk link ke-7 (Galeri) di drawer mobile */

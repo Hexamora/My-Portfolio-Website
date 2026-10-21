@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Galeri Jepretan Abdullah Nur Hadi — Kumpulan hasil foto random: drone, IoT, dan eksplorasi visual">
+    <meta name="description" content="Galeri Hal Random Abdullah Nur Hadi — Kumpulan hal random: drone, IoT, dan eksplorasi visual">
     <meta name="author" content="Abdullah Nur Hadi">
     <meta name="theme-color" content="#0a0a0a">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Galeri Jepretan | Abdullah Nur Hadi">
-    <meta property="og:description" content="Kumpulan hasil jepretan/foto random — embed via link, tanpa simpan lokal">
+    <meta property="og:title" content="Galeri Hal Random | Abdullah Nur Hadi">
+    <meta property="og:description" content="Kumpulan hal-hal random — embed via link, tanpa simpan lokal">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://files.catbox.moe/9naso2.jpg">
 
-    <title>Galeri Jepretan | Abdullah Nur Hadi</title>
+    <title>Galeri Hal Random | Abdullah Nur Hadi</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -71,18 +71,9 @@
         <section class="gallery-section section visible" id="gallery">
             <div class="container">
                 <div class="section-header">
-                    <span class="section-tag">Jepretan Random</span>
-                    <h2 class="section-title">Hasil <span class="highlight">Jepretan</span></h2>
-                    <p class="section-subtitle">Kumpulan foto random hasil eksplorasi — klik foto untuk perbesar. Tambah foto baru cukup paste link di <code>GALLERY_PHOTOS</code>.</p>
-                </div>
-
-                <div class="gallery-meta glass-card">
-                    <div class="gallery-meta-item">
-                        <span class="gallery-count" id="galleryCount">0</span>
-                        <span class="gallery-count-label">Foto</span>
-                    </div>
-                    <p class="gallery-meta-text">Semua aset di-embed via link (Catbox/dll), tanpa simpan di folder lokal.</p>
-                    <a href="index.html#contact" class="btn btn-secondary btn-sm">Minta File Asli via Kontak</a>
+                    <span class="section-tag">Hal Random</span>
+                    <h2 class="section-title">Hal-Hal <span class="highlight">Random</span></h2>
+                    <p class="section-subtitle">Kumpulan hal-hal random</p>
                 </div>
 
                 <div class="masonry-grid" id="galleryGrid" aria-live="polite"></div>
@@ -90,7 +81,7 @@
                 <div class="gallery-empty glass-card" id="galleryEmpty" hidden>
                     <img src="https://files.catbox.moe/dpejcc.png" alt="Galeri masih kosong" loading="lazy">
                     <h3>Galeri masih kosong</h3>
-                    <p>Container siap diisi. Tambahkan link foto di array <code>GALLERY_PHOTOS</code> di bawah file ini.</p>
+                    <p>Container siap diisi.</p>
                 </div>
             </div>
         </section>
@@ -109,7 +100,7 @@
         <div class="container">
             <div class="footer-content">
                 <p class="copyright">© <span id="year"></span> Abdullah Nur Hadi. All rights reserved.</p>
-                <p class="footer-tagline">📷 Mendokumentasikan eksplorasi, satu jepretan dalam satu waktu.</p>
+                <p class="footer-tagline">📷 Mendokumentasikan eksplorasi, satu hal random dalam satu waktu.</p>
                 <p class="footer-back"><a href="index.html#hero">← Kembali ke Home</a></p>
             </div>
         </div>
@@ -156,19 +147,16 @@
     (function renderGallery() {
         const grid = document.getElementById('galleryGrid');
         const empty = document.getElementById('galleryEmpty');
-        const count = document.getElementById('galleryCount');
         if (!grid) return;
 
         grid.innerHTML = '';
 
         if (!Array.isArray(GALLERY_PHOTOS) || GALLERY_PHOTOS.length === 0) {
             if (empty) empty.hidden = false;
-            if (count) count.textContent = '0';
             return;
         }
 
         if (empty) empty.hidden = true;
-        if (count) count.textContent = String(GALLERY_PHOTOS.length);
 
         GALLERY_PHOTOS.forEach((photo, i) => {
             const fig = document.createElement('figure');
